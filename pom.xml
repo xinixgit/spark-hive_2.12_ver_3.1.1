@@ -1,107 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>spark-parent_2.12</artifactId>
     <groupId>org.apache.spark</groupId>
     <version>3.1.1</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.spark</groupId>
   <artifactId>spark-hive_2.12</artifactId>
   <name>Spark Project Hive</name>
   <url>http://spark.apache.org/</url>
-  <build>
-    <outputDirectory>target/scala-${scala.binary.version}/classes</outputDirectory>
-    <testOutputDirectory>target/scala-${scala.binary.version}/test-classes</testOutputDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest-maven-plugin</artifactId>
-        <configuration>
-          <argLine>-da -Xmx4g -XX:ReservedCodeCacheSize=${CodeCacheSize} -Dio.netty.tryReflectionSetAccessible=true</argLine>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-versions</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <excludes>
-                    <exclude>*:hive-cli</exclude>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  <profiles>
-    <profile>
-      <id>hive</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.0.0</version>
-            <executions>
-              <execution>
-                <id>module-timestamp-property</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>timestamp-property</goal>
-                </goals>
-                <configuration>
-                  <name>module.build.timestamp</name>
-                  <pattern>yyyy-MM-dd HH:mm:ss z</pattern>
-                  <timeSource>current</timeSource>
-                  <timeZone>America/Los_Angeles</timeZone>
-                </configuration>
-              </execution>
-              <execution>
-                <id>local-timestamp-property</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>timestamp-property</goal>
-                </goals>
-                <configuration>
-                  <name>local.build.timestamp</name>
-                  <pattern>yyyy-MM-dd HH:mm:ss z</pattern>
-                  <timeSource>build</timeSource>
-                  <timeZone>America/Los_Angeles</timeZone>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-scala-test-sources</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>compatibility/src/test/scala</source>
-                  </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+  <version>3.1.1</version>
+  <inceptionYear>2008</inceptionYear>
+  <properties>
+    <scala.version>2.12.10</scala.version>
+    <spark.version>3.1.1</spark.version>
+    <hive.version>3.1.2</hive.version>
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.12</artifactId>
-      <version>3.1.1</version>
+      <version>${spark.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -148,84 +69,21 @@
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.12</artifactId>
-      <version>3.1.1</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>jetty-plus</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-security</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-util</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-server</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-http</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-continuation</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-servlet</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-proxy</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-client</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-servlets</artifactId>
-          <groupId>org.eclipse.jetty</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
       <artifactId>spark-sql_2.12</artifactId>
-      <version>3.1.1</version>
+      <version>${spark.version}</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.12</artifactId>
-      <version>3.1.1</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-catalyst_2.12</artifactId>
-      <version>3.1.1</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-tags_2.12</artifactId>
-      <version>3.1.1</version>
+      <version>${spark.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-common</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -281,7 +139,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-exec</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <classifier>core</classifier>
       <scope>compile</scope>
       <exclusions>
@@ -406,7 +264,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-metastore</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -454,7 +312,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-serde</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -526,7 +384,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-shims</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -578,7 +436,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-llap-common</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -598,7 +456,7 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-llap-client</artifactId>
-      <version>2.3.7</version>
+      <version>${hive.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -877,7 +735,30 @@
       </exclusions>
     </dependency>
   </dependencies>
-  <properties>
-    <sbt.project.name>hive</sbt.project.name>
-  </properties>
+
+  <build>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>3.4.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <scalaVersion>${scala.version}</scalaVersion>
+          <args>
+            <arg>-target:jvm-1.8</arg>
+          </args>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

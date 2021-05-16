@@ -17,8 +17,9 @@
 
 package org.apache.spark.sql.hive.execution
 
-import scala.collection.JavaConverters._
+import org.apache.hadoop.conf.Configuration
 
+import scala.collection.JavaConverters._
 import org.apache.hadoop.fs.{FileStatus, Path}
 import org.apache.hadoop.hive.ql.exec.Utilities
 import org.apache.hadoop.hive.ql.io.{HiveFileFormatUtils, HiveOutputFormat}
@@ -28,7 +29,6 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorUtils.Object
 import org.apache.hadoop.io.Writable
 import org.apache.hadoop.mapred.{JobConf, Reporter}
 import org.apache.hadoop.mapreduce.{Job, TaskAttemptContext}
-
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.SPECULATION_ENABLED
 import org.apache.spark.sql.SparkSession
@@ -84,7 +84,7 @@ class HiveFileFormat(fileSinkConf: FileSinkDesc)
     // Add table properties from storage handler to hadoopConf, so any custom storage
     // handler settings can be set to hadoopConf
     HiveTableUtil.configureJobPropertiesForStorageHandler(tableDesc, conf, false)
-    Utilities.copyTableJobPropertiesToConf(tableDesc, conf)
+    Utilities.copyTableJobPropertiesToConf(tableDesc, new JobConf(conf))
 
     // Avoid referencing the outer object.
     val fileSinkConfSer = fileSinkConf

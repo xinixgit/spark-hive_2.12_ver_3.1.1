@@ -104,20 +104,22 @@ private[hive] class HiveClientImpl(
   // Circular buffer to hold what hive prints to STDOUT and ERR.  Only printed when failures occur.
   private val outputBuffer = new CircularBuffer()
 
-  private val shim = version match {
-    case hive.v12 => new Shim_v0_12()
-    case hive.v13 => new Shim_v0_13()
-    case hive.v14 => new Shim_v0_14()
-    case hive.v1_0 => new Shim_v1_0()
-    case hive.v1_1 => new Shim_v1_1()
-    case hive.v1_2 => new Shim_v1_2()
-    case hive.v2_0 => new Shim_v2_0()
-    case hive.v2_1 => new Shim_v2_1()
-    case hive.v2_2 => new Shim_v2_2()
-    case hive.v2_3 => new Shim_v2_3()
-    case hive.v3_0 => new Shim_v3_0()
-    case hive.v3_1 => new Shim_v3_1()
-  }
+//  private val shim = version match {
+//    case hive.v12 => new Shim_v0_12()
+//    case hive.v13 => new Shim_v0_13()
+//    case hive.v14 => new Shim_v0_14()
+//    case hive.v1_0 => new Shim_v1_0()
+//    case hive.v1_1 => new Shim_v1_1()
+//    case hive.v1_2 => new Shim_v1_2()
+//    case hive.v2_0 => new Shim_v2_0()
+//    case hive.v2_1 => new Shim_v2_1()
+//    case hive.v2_2 => new Shim_v2_2()
+//    case hive.v2_3 => new Shim_v2_3()
+//    case hive.v3_0 => new Shim_v3_0()
+//    case hive.v3_1 => new Shim_v3_1()
+//  }
+
+  private val shim = new Shim_v3_1()
 
   // Create an internal session state for this HiveClientImpl.
   val state: SessionState = {
@@ -344,10 +346,10 @@ private[hive] class HiveClientImpl(
   override def alterDatabase(database: CatalogDatabase): Unit = withHiveState {
     if (!getDatabase(database.name).locationUri.equals(database.locationUri)) {
       // SPARK-29260: Enable supported versions once it support altering database location.
-      if (!(version.equals(hive.v3_0) || version.equals(hive.v3_1))) {
-        throw new AnalysisException(
-          s"Hive ${version.fullVersion} does not support altering database location")
-      }
+//      if (!(version.equals(hive.v3_0) || version.equals(hive.v3_1))) {
+//        throw new AnalysisException(
+//          s"Hive ${version.fullVersion} does not support altering database location")
+//      }
     }
     val hiveDb = toHiveDatabase(database)
     client.alterDatabase(database.name, hiveDb)
@@ -801,9 +803,9 @@ private[hive] class HiveClientImpl(
       // Since HIVE-18238(Hive 3.0.0), the Driver.close function's return type changed
       // and the CommandProcessorFactory.clean function removed.
       driver.getClass.getMethod("close").invoke(driver)
-      if (version != hive.v3_0 && version != hive.v3_1) {
-        CommandProcessorFactory.clean(conf)
-      }
+//      if (version != hive.v3_0 && version != hive.v3_1) {
+//        CommandProcessorFactory.clean(conf)
+//      }
     }
 
     logDebug(s"Running hiveql '$cmd'")
@@ -964,19 +966,20 @@ private[hive] class HiveClientImpl(
 
     others.foreach { table =>
       val t = table.getTableName
-      logDebug(s"Deleting table $t")
-      try {
-        client.getIndexes("default", t, 255).asScala.foreach { index =>
-          shim.dropIndex(client, "default", t, index.getIndexName)
-        }
-        if (!table.isIndexTable) {
-          client.dropTable("default", t)
-        }
-      } catch {
-        case _: NoSuchMethodError =>
-          // HIVE-18448 Hive 3.0 remove index APIs
-          client.dropTable("default", t)
-      }
+      client.dropTable("default", t)
+//      logDebug(s"Deleting table $t")
+//      try {
+//        client.getIndexes("default", t, 255).asScala.foreach { index =>
+//          shim.dropIndex(client, "default", t, index.getIndexName)
+//        }
+//        if (!table.isIndexTable) {
+//          client.dropTable("default", t)
+//        }
+//      } catch {
+//        case _: NoSuchMethodError =>
+//          // HIVE-18448 Hive 3.0 remove index APIs
+//          client.dropTable("default", t)
+//      }
     }
     client.getAllDatabases.asScala.filterNot(_ == "default").foreach { db =>
       logDebug(s"Dropping Database: $db")

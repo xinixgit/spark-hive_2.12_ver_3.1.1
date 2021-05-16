@@ -18,9 +18,7 @@
 package org.apache.spark.sql.hive
 
 import java.util.Properties
-
 import scala.collection.JavaConverters._
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{Path, PathFilter}
 import org.apache.hadoop.hive.metastore.api.hive_metastoreConstants._
@@ -31,9 +29,8 @@ import org.apache.hadoop.hive.serde2.Deserializer
 import org.apache.hadoop.hive.serde2.objectinspector.{ObjectInspectorConverters, StructObjectInspector}
 import org.apache.hadoop.hive.serde2.objectinspector.primitive._
 import org.apache.hadoop.io.Writable
-import org.apache.hadoop.mapred.{FileInputFormat, InputFormat => oldInputClass, JobConf}
+import org.apache.hadoop.mapred.{FileInputFormat, JobConf, InputFormat => oldInputClass}
 import org.apache.hadoop.mapreduce.{InputFormat => newInputClass}
-
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
@@ -46,6 +43,8 @@ import org.apache.spark.sql.catalyst.util.DateTimeUtils
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.util.{SerializableConfiguration, Utils}
+
+import java.sql.{Date, Timestamp}
 
 /**
  * A trait for subclasses that handle table scans.
@@ -465,10 +464,10 @@ private[hive] object HadoopTableReader extends HiveInspectors with Logging {
             row.update(ordinal, HiveShim.toCatalystDecimal(oi, value))
         case oi: TimestampObjectInspector =>
           (value: Any, row: InternalRow, ordinal: Int) =>
-            row.setLong(ordinal, DateTimeUtils.fromJavaTimestamp(oi.getPrimitiveJavaObject(value)))
+            row.setLong(ordinal, DateTimeUtils.fromJavaTimestamp(new Timestamp(oi.getPrimitiveJavaObject(value).toEpochMilli)))
         case oi: DateObjectInspector =>
           (value: Any, row: InternalRow, ordinal: Int) =>
-            row.setInt(ordinal, DateTimeUtils.fromJavaDate(oi.getPrimitiveJavaObject(value)))
+            row.setInt(ordinal, DateTimeUtils.fromJavaDate(new Date(oi.getPrimitiveJavaObject(value).toEpochMilli)))
         case oi: BinaryObjectInspector =>
           (value: Any, row: InternalRow, ordinal: Int) =>
             row.update(ordinal, oi.getPrimitiveJavaObject(value))
